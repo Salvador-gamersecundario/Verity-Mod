@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "verity-mod",
+  "version": "${version}",
+  "name": "Verity Mod",
+  "description": "Esfera de Verity con post-proceso de bloom",
+  "authors": ["Luis"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/verity/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.luis.verity.client.VerityClient"
+    ],
+    "main": [
+      "com.luis.verity.VerityMod"
+    ]
+  },
+  "mixins": [
+    "verity.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.22",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-language-kotlin": ">=1.10.10+kotlin.1.9.10"
+  }
+}
