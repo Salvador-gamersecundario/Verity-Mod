@@ -17,10 +17,10 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<VeritySphereEntity>> VERITY_SPHERE = 
             ENTITY_TYPES.register("verity_sphere", () -> EntityType.Builder.<VeritySphereEntity>of(
-                    VeritySphereEntity::new, 
+                    VeritySphereEntity::new,
                     MobCategory.MISC
             )
-            .sized(30.0f, 30.0f)
+            .sized(0.4f, 0.7f)
             .clientTrackingRange(32)
             .updateInterval(20)
             .build("verity_sphere"));

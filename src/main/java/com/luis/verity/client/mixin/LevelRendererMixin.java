@@ -1,6 +1,5 @@
 package com.luis.verity.client.mixin;
 
-import com.luis.verity.client.render.PostProcessor;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -25,7 +24,7 @@ public class LevelRendererMixin {
             Matrix4f matrix4f,
             CallbackInfo ci
     ) {
-        PostProcessor.beginRender();
+        // PostProcessor disabled to avoid direct OpenGL state corruption.
     }
 
     @Inject(method = "renderLevel", at = @At("RETURN"))
@@ -39,6 +38,6 @@ public class LevelRendererMixin {
             Matrix4f matrix4f,
             CallbackInfo ci
     ) {
-        PostProcessor.endRender();
+        // PostProcessor disabled to avoid direct OpenGL state corruption.
     }
 }
