@@ -4,9 +4,14 @@ plugins {
     kotlin("plugin.serialization") version "1.9.10"
 }
 
-val modId: String by extra.properties
-val modVersion: String by extra.properties
-val modGroupId: String by extra.properties
+// Leer propiedades de gradle.properties correctamente
+val modId: String by project
+val modVersion: String by project
+val modGroupId: String by project
+val minecraftVersion: String by project
+val forgeVersion: String by project
+val mappingChannel: String by project
+val mappingVersion: String by project
 
 version = modVersion
 group = modGroupId
@@ -16,7 +21,7 @@ java {
 }
 
 minecraft {
-    mappings(extra.properties["mapping_channel"] as String, extra.properties["mapping_version"] as String)
+    mappings(mappingChannel, mappingVersion)
     
     copyIdeResources.set(true)
     
@@ -53,9 +58,7 @@ repositories {
 }
 
 dependencies {
-    minecraft(
-        "net.minecraftforge:forge:${extra.properties["minecraft_version"]}-${extra.properties["forge_version"]}"
-    )
+    minecraft("net.minecraftforge:forge:$minecraftVersion-$forgeVersion")
     implementation("thedarkcolour:kotlinforforge:4.5.0")
 }
 
