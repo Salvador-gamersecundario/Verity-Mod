@@ -3,28 +3,28 @@ loaderVersion="[4,)"
 license="MIT"
 
 [[mods]]
-modId="verity-mod"          # ← ANTES decía "verity", debe ser "verity-mod"
+modId="verity_mod"          # ← GUION BAJO, no guion
 version="1.0.0"
 displayName="Verity Mod"
 description='''Esfera de Verity con post-proceso de bloom.'''
 authors="Luis_gamerYT, Luis Font, Jose Rujano"
 logoFile="icon.png"
 
-[[dependencies.verity-mod]]   # ← También cambiar aquí
+[[dependencies.verity_mod]]   # ← GUION BAJO
 modId="forge"
 mandatory=true
 versionRange="[47,)"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.verity-mod]]  # ← Y aquí
+[[dependencies.verity_mod]]   # ← GUION BAJO
 modId="minecraft"
 mandatory=true
 versionRange="[1.20.1,1.21)"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.verity-mod]]  # ← Y aquí
+[[dependencies.verity_mod]]   # ← GUION BAJO
 modId="kotlinforforge"
 mandatory=true
 versionRange="[4,)"

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 class VerityMod {
 
     companion object {
-        const val MOD_ID = "verity-mod"
+        const val MOD_ID = "verity_mod"
         val LOGGER = LoggerFactory.getLogger(MOD_ID)
     }
 
