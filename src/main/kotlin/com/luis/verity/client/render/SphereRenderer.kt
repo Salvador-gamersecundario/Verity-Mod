@@ -1,11 +1,15 @@
 package com.luis.verity.client.render
 
+import com.luis.verity.VerityMod
 import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.RotationAxis
+import com.mojang.blaze3d.vertex.*
+import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.client.renderer.ShaderInstance
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.Mth
+import net.minecraftforge.client.event.RenderLevelStageEvent
+import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
 import org.lwjgl.opengl.GL20
@@ -14,14 +18,13 @@ import kotlin.math.*
 
 object SphereRenderer {
 
-    private val TEXTURE = Identifier("verity", "textures/entity/verity_sphere.png")
+    private val TEXTURE = ResourceLocation("verity", "textures/entity/verity_sphere.png")
     private var vaoId: Int = 0
     private var vboId: Int = 0
     private var eboId: Int = 0
     private var indexCount: Int = 0
     private var initialized = false
 
-    // Posición de la esfera en el mundo
     private const val SPHERE_X = 100.0
     private const val SPHERE_Y = 120.0
     private const val SPHERE_Z = 100.0
@@ -57,13 +60,13 @@ object SphereRenderer {
         initialized = true
     }
 
-    fun render(context: WorldRenderEvents.AfterEntities) {
+    fun render(event: RenderLevelStageEvent) {
         if (!initialized) init()
 
-        val client = MinecraftClient.getInstance()
-        val camera = client.gameRenderer.camera
+        val minecraft = Minecraft.getInstance()
+        val camera = minecraft.gameRenderer.mainCamera
 
-        val camPos = camera.pos
+        val camPos = camera.position
         val dx = SPHERE_X - camPos.x
         val dy = SPHERE_Y - camPos.y
         val dz = SPHERE_Z - camPos.z
@@ -71,21 +74,21 @@ object SphereRenderer {
 
         if (distance > 5000) return
 
-        val matrices = context.matrixStack() ?: return
-        val projectionMatrix = context.projectionMatrix()
+        val poseStack = event.poseStack
+        val projectionMatrix = event.projectionMatrix
 
-        matrices.push()
+        poseStack.pushPose()
 
-        matrices.translate(
+        poseStack.translate(
             SPHERE_X - camPos.x,
             SPHERE_Y - camPos.y,
             SPHERE_Z - camPos.z
         )
 
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-camera.yaw))
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.pitch))
+        poseStack.mulPose(net.minecraft.util.Axis.YP.rotationDegrees(-camera.yRot))
+        poseStack.mulPose(net.minecraft.util.Axis.XP.rotationDegrees(camera.xRot))
 
-        matrices.scale(RADIUS, RADIUS, RADIUS)
+        poseStack.scale(RADIUS, RADIUS, RADIUS)
 
         RenderSystem.enableBlend()
         RenderSystem.defaultBlendFunc()
@@ -94,11 +97,11 @@ object SphereRenderer {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         RenderSystem.setShaderTexture(0, TEXTURE)
 
-        val shader = RenderSystem.setShader { GameRenderer.getPositionTexColorNormalProgram() }
+        val shader = RenderSystem.setShader { GameRenderer.getPositionTexColorNormalShader() }
 
-        val modelView = matrices.peek().positionMatrix
-        shader.modelViewMat.set(modelView)
-        shader.projectionMat.set(projectionMatrix)
+        val modelView = poseStack.last().pose()
+        shader.modelViewMatrix.set(modelView)
+        shader.projectionMatrix.set(projectionMatrix)
 
         GL30.glBindVertexArray(vaoId)
         GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0)
@@ -108,7 +111,7 @@ object SphereRenderer {
         RenderSystem.enableCull()
         RenderSystem.disableBlend()
 
-        matrices.pop()
+        poseStack.popPose()
     }
 
     private fun createIcosphere(subdivisions: Int): Pair<FloatArray, IntArray> {

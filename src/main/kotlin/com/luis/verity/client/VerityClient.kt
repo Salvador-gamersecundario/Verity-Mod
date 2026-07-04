@@ -4,32 +4,49 @@ import com.luis.verity.VerityMod
 import com.luis.verity.client.render.PostProcessor
 import com.luis.verity.client.render.SphereRenderer
 import com.luis.verity.client.render.VeritySphereEntityRenderer
-import net.fabricmc.api.ClientModInitializer
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
+import com.luis.verity.registry.ModEntities
+import net.minecraft.client.Minecraft
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.client.event.EntityRenderersEvent
+import net.minecraftforge.client.event.RenderLevelStageEvent
+import net.minecraftforge.event.TickEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent
 
-object VerityClient : ClientModInitializer {
+@Mod.EventBusSubscriber(modid = VerityMod.MOD_ID, value = [Dist.CLIENT], bus = Mod.EventBusSubscriber.Bus.MOD)
+object VerityClient {
 
-    override fun onInitializeClient() {
+    @SubscribeEvent
+    fun onClientSetup(event: FMLClientSetupEvent) {
         VerityMod.LOGGER.info("Verity Client inicializado")
-
-        // Registrar renderer de entidad
-        EntityRendererRegistry.register(VerityMod.VERITY_SPHERE) { context ->
-            VeritySphereEntityRenderer(context)
-        }
 
         // Inicializar post-procesador
         PostProcessor.init()
+    }
 
-        // Renderizar esfera después del mundo (fallback)
-        WorldRenderEvents.AFTER_ENTITIES.register { context ->
-            SphereRenderer.render(context)
+    @SubscribeEvent
+    fun onRegisterRenderers(event: EntityRenderersEvent.RegisterRenderers) {
+        event.registerEntityRenderer(ModEntities.VERITY_SPHERE.get()) { context ->
+            VeritySphereEntityRenderer(context)
+        }
+    }
+
+    @Mod.EventBusSubscriber(modid = VerityMod.MOD_ID, value = [Dist.CLIENT])
+    object ClientEvents {
+
+        @SubscribeEvent
+        fun onRenderWorld(event: RenderLevelStageEvent) {
+            if (event.stage == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
+                SphereRenderer.render(event)
+            }
         }
 
-        // Actualizar post-proceso cada tick
-        ClientTickEvents.END_CLIENT_TICK.register { client ->
-            PostProcessor.update()
+        @SubscribeEvent
+        fun onClientTick(event: TickEvent.ClientTickEvent) {
+            if (event.phase == TickEvent.Phase.END) {
+                PostProcessor.update()
+            }
         }
     }
 }

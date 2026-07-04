@@ -1,42 +1,68 @@
 plugins {
-    id("fabric-loom") version "1.4-SNAPSHOT"
+    id("net.minecraftforge.gradle") version "[6.0,6.2)"
     kotlin("jvm") version "1.9.10"
     kotlin("plugin.serialization") version "1.9.10"
 }
 
-base {
-    archivesName.set(properties["archives_base_name"] as String)
+val modId: String by extra.properties
+val modVersion: String by extra.properties
+val modGroupId: String by extra.properties
+
+version = modVersion
+group = modGroupId
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
-version = properties["mod_version"] as String
-group = properties["maven_group"] as String
+minecraft {
+    mappings(extra.properties["mapping_channel"] as String, extra.properties["mapping_version"] as String)
+    
+    copyIdeResources.set(true)
+    
+    runs {
+        create("client") {
+            workingDirectory(project.file("run"))
+            property("forge.logging.markers", "REGISTRIES")
+            property("forge.logging.console.level", "debug")
+            property("forge.enabledGameTestNamespaces", modId)
+            mods {
+                create(modId) {
+                    source(sourceSets.main.get())
+                }
+            }
+        }
+        
+        create("server") {
+            workingDirectory(project.file("run"))
+            property("forge.logging.markers", "REGISTRIES")
+            property("forge.logging.console.level", "debug")
+            property("forge.enabledGameTestNamespaces", modId)
+            mods {
+                create(modId) {
+                    source(sourceSets.main.get())
+                }
+            }
+        }
+    }
+}
 
 repositories {
     mavenCentral()
-    maven("https://maven.fabricmc.net/")
+    maven("https://thedarkcolour.github.io/KotlinForForge/")
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:${properties["minecraft_version"]}")
-    mappings("net.fabricmc:yarn:${properties["yarn_mappings"]}:v2")
-    modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"]}")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
-    modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
+    minecraft(
+        "net.minecraftforge:forge:${extra.properties["minecraft_version"]}-${extra.properties["forge_version"]}"
+    )
+    implementation("thedarkcolour:kotlinforforge:4.5.0")
 }
 
-tasks {
-    processResources {
-        inputs.property("version", project.version)
-        filesMatching("fabric.mod.json") {
-            expand("version" to project.version)
-        }
-    }
+tasks.withType<JavaCompile> {
+    options.release.set(17)
+}
 
-    withType<JavaCompile> {
-        options.release.set(17)
-    }
-
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "17"
 }

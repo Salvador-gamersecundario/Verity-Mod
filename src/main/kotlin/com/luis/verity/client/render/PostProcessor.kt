@@ -1,7 +1,7 @@
 package com.luis.verity.client.render
 
 import com.luis.verity.VerityMod
-import net.minecraft.client.MinecraftClient
+import net.minecraft.client.Minecraft
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
 import org.lwjgl.opengl.GL20
@@ -25,9 +25,9 @@ object PostProcessor {
     }
 
     fun update() {
-        val client = MinecraftClient.getInstance()
-        val width = client.window.width
-        val height = client.window.height
+        val minecraft = Minecraft.getInstance()
+        val width = minecraft.window.width
+        val height = minecraft.window.height
 
         if (width != screenWidth || height != screenHeight) {
             resize(width, height)

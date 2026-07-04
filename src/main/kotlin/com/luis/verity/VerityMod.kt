@@ -1,40 +1,39 @@
 package com.luis.verity
 
-import com.luis.verity.entity.VeritySphereEntity
 import com.luis.verity.registry.ModEntities
-import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
-import net.minecraft.entity.EntityDimensions
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.SpawnGroup
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
-import net.minecraft.util.Identifier
+import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.eventbus.api.IEventBus
+import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import org.slf4j.LoggerFactory
 
-object VerityMod : ModInitializer {
-    const val MOD_ID = "verity-mod"
-    val LOGGER = LoggerFactory.getLogger(MOD_ID)
+@Mod(VerityMod.MOD_ID)
+class VerityMod {
 
-    lateinit var VERITY_SPHERE: EntityType<VeritySphereEntity>
+    companion object {
+        const val MOD_ID = "verity-mod"
+        val LOGGER = LoggerFactory.getLogger(MOD_ID)
+    }
 
-    override fun onInitialize() {
+    init {
+        val modEventBus: IEventBus = FMLJavaModLoadingContext.get().modEventBus
+
+        // Registrar entidades
+        ModEntities.ENTITY_TYPES.register(modEventBus)
+
+        // Evento de setup común
+        modEventBus.addListener(this::commonSetup)
+
+        // Registrar eventos de Forge
+        MinecraftForge.EVENT_BUS.register(this)
+
         LOGGER.info("Verity Mod inicializado")
+    }
 
-        // Registrar entidad
-        VERITY_SPHERE = Registry.register(
-            Registries.ENTITY_TYPE,
-            Identifier(MOD_ID, "verity_sphere"),
-            net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityTypeBuilder
-                .create(SpawnGroup.MISC) { entityType: EntityType<VeritySphereEntity>, world ->
-                    VeritySphereEntity(entityType, world)
-                }
-                .dimensions(EntityDimensions.fixed(30.0f, 30.0f))
-                .trackRangeChunks(32)
-                .trackedUpdateRate(20)
-                .build()
-        )
-
-        VeritySphereEntity.ENTITY_TYPE = VERITY_SPHERE
+    private fun commonSetup(event: FMLCommonSetupEvent) {
+        event.enqueueWork {
+            LOGGER.info("Setup común completado")
+        }
     }
 }

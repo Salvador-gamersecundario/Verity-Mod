@@ -1,93 +1,93 @@
 package com.luis.verity.client.render
 
 import com.luis.verity.entity.VeritySphereEntity
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.render.Frustum
-import net.minecraft.client.render.VertexConsumerProvider
-import net.minecraft.client.render.entity.EntityRenderer
-import net.minecraft.client.render.entity.EntityRendererFactory
-import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.RotationAxis
+import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.entity.EntityRenderer
+import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.Axis
 
 class VeritySphereEntityRenderer(
-    context: EntityRendererFactory.Context
+    context: EntityRendererProvider.Context
 ) : EntityRenderer<VeritySphereEntity>(context) {
 
     init {
         shadowRadius = 0f
     }
 
-    override fun getTexture(entity: VeritySphereEntity): Identifier {
-        return Identifier("verity", "textures/entity/verity_sphere.png")
+    override fun getTextureLocation(entity: VeritySphereEntity): ResourceLocation {
+        return ResourceLocation("verity", "textures/entity/verity_sphere.png")
     }
 
-    override fun shouldRender(entity: VeritySphereEntity, frustum: Frustum, x: Double, y: Double, z: Double): Boolean {
+    override fun shouldRender(entity: VeritySphereEntity, frustum: net.minecraft.client.renderer.culling.Frustum, x: Double, y: Double, z: Double): Boolean {
         return true
     }
 
     override fun render(
         entity: VeritySphereEntity,
-        yaw: Float,
-        tickDelta: Float,
-        matrices: MatrixStack,
-        vertexConsumers: VertexConsumerProvider,
-        light: Int
+        entityYaw: Float,
+        partialTick: Float,
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        packedLight: Int
     ) {
-        matrices.push()
+        poseStack.pushPose()
 
-        val camera = MinecraftClient.getInstance().gameRenderer.camera
+        val camera = Minecraft.getInstance().gameRenderer.mainCamera
 
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-camera.yaw))
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.pitch))
+        poseStack.mulPose(Axis.YP.rotationDegrees(-camera.yRot))
+        poseStack.mulPose(Axis.XP.rotationDegrees(camera.xRot))
 
         val scale = 15.0f
-        matrices.scale(scale, scale, scale)
+        poseStack.scale(scale, scale, scale)
 
-        renderSphereQuad(matrices, vertexConsumers, light)
+        renderSphereQuad(poseStack, buffer, packedLight)
 
-        matrices.pop()
+        poseStack.popPose()
 
-        super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light)
+        super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight)
     }
 
     private fun renderSphereQuad(
-        matrices: MatrixStack,
-        vertexConsumers: VertexConsumerProvider,
-        light: Int
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        packedLight: Int
     ) {
-        val buffer = vertexConsumers.getBuffer(SphereRenderType.VERITY_SPHERE)
-        val matrix = matrices.peek().positionMatrix
-        val normal = matrices.peek().normalMatrix
+        val vertexConsumer = buffer.getBuffer(SphereRenderType.VERITY_SPHERE)
+        val matrix = poseStack.last().pose()
+        val normal = poseStack.last().normal()
 
         val size = 1.0f
 
-        buffer.vertex(matrix, -size, -size, 0f)
-            .texture(0f, 1f)
+        vertexConsumer.vertex(matrix, -size, -size, 0f)
+            .uv(0f, 1f)
             .color(255, 255, 255, 255)
-            .light(light)
+            .uv2(packedLight)
             .normal(normal, 0f, 0f, 1f)
-            .next()
+            .endVertex()
 
-        buffer.vertex(matrix, size, -size, 0f)
-            .texture(1f, 1f)
+        vertexConsumer.vertex(matrix, size, -size, 0f)
+            .uv(1f, 1f)
             .color(255, 255, 255, 255)
-            .light(light)
+            .uv2(packedLight)
             .normal(normal, 0f, 0f, 1f)
-            .next()
+            .endVertex()
 
-        buffer.vertex(matrix, size, size, 0f)
-            .texture(1f, 0f)
+        vertexConsumer.vertex(matrix, size, size, 0f)
+            .uv(1f, 0f)
             .color(255, 255, 255, 255)
-            .light(light)
+            .uv2(packedLight)
             .normal(normal, 0f, 0f, 1f)
-            .next()
+            .endVertex()
 
-        buffer.vertex(matrix, -size, size, 0f)
-            .texture(0f, 0f)
+        vertexConsumer.vertex(matrix, -size, size, 0f)
+            .uv(0f, 0f)
             .color(255, 255, 255, 255)
-            .light(light)
+            .uv2(packedLight)
             .normal(normal, 0f, 0f, 1f)
-            .next()
+            .endVertex()
     }
 }
