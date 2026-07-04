@@ -4,7 +4,6 @@ import com.luis.verity.entity.VeritySphereEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.resources.ResourceLocation
@@ -37,26 +36,18 @@ class VeritySphereEntityRenderer(
 
         val camera = Minecraft.getInstance().gameRenderer.mainCamera
 
-        // FIX: Usar com.mojang.math.Axis
         poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-camera.yRot))
         poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(camera.xRot))
 
         val scale = 15.0f
         poseStack.scale(scale, scale, scale)
 
-        renderSphereQuad(poseStack, buffer, packedLight)
-
-        poseStack.popPose()
-
-        super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight)
-    }
-
-    private fun renderSphereQuad(
-        poseStack: PoseStack,
-        buffer: MultiBufferSource,
-        packedLight: Int
-    ) {
-        val vertexConsumer = buffer.getBuffer(SphereRenderType.VERITY_SPHERE)
+        // Usar el RenderType simple
+        val renderType = SphereRenderType.veritySphere(
+            ResourceLocation("verity", "textures/entity/verity_sphere.png")
+        )
+        
+        val vertexConsumer = buffer.getBuffer(renderType)
         val matrix = poseStack.last().pose()
         val normal = poseStack.last().normal()
 
@@ -89,5 +80,9 @@ class VeritySphereEntityRenderer(
             .uv2(packedLight)
             .normal(normal, 0f, 0f, 1f)
             .endVertex()
+
+        poseStack.popPose()
+
+        super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight)
     }
 }

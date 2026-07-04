@@ -3,11 +3,8 @@ package com.luis.verity.client.render
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GameRenderer
-import net.minecraft.client.renderer.ShaderInstance
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.Mth
 import net.minecraftforge.client.event.RenderLevelStageEvent
-import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
 import org.lwjgl.opengl.GL20
@@ -16,7 +13,7 @@ import kotlin.math.*
 
 object SphereRenderer {
 
-    private val TEXTURE = ResourceLocation("verity", "textures/entity/verity_sphere.png")
+    private val TEXTURE = ResourceLocation.fromNamespaceAndPath("verity", "textures/entity/verity_sphere.png")
     private var vaoId: Int = 0
     private var vboId: Int = 0
     private var eboId: Int = 0
@@ -83,7 +80,6 @@ object SphereRenderer {
             SPHERE_Z - camPos.z
         )
 
-        // FIX: Usar com.mojang.math.Axis en lugar de net.minecraft.util.Axis
         poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-camera.yRot))
         poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(camera.xRot))
 
@@ -96,12 +92,22 @@ object SphereRenderer {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         RenderSystem.setShaderTexture(0, TEXTURE)
 
-        val shader = RenderSystem.setShader { GameRenderer.getPositionTexColorNormalShader() }
+        // Usar el shader de Minecraft
+        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader)
 
-        // FIX: Usar los métodos correctos del shader
-        val modelView = poseStack.last().pose()
-        shader.safeGetUniform("ModelViewMat")?.set(modelView)
-        shader.safeGetUniform("ProjMat")?.set(projectionMatrix)
+        // Obtener el shader actual y aplicar matrices manualmente
+        val shader = RenderSystem.getShader()
+        if (shader != null) {
+            val modelView = poseStack.last().pose()
+            
+            // Aplicar ModelViewMat uniform
+            val modelViewUniform = shader.getUniform("ModelViewMat")
+            modelViewUniform?.set(modelView)
+            
+            // Aplicar ProjMat uniform
+            val projUniform = shader.getUniform("ProjMat")
+            projUniform?.set(projectionMatrix)
+        }
 
         GL30.glBindVertexArray(vaoId)
         GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0)
