@@ -1,8 +1,6 @@
 package com.luis.verity.client.render
 
-import com.luis.verity.VerityMod
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.ShaderInstance
@@ -85,8 +83,9 @@ object SphereRenderer {
             SPHERE_Z - camPos.z
         )
 
-        poseStack.mulPose(net.minecraft.util.Axis.YP.rotationDegrees(-camera.yRot))
-        poseStack.mulPose(net.minecraft.util.Axis.XP.rotationDegrees(camera.xRot))
+        // FIX: Usar com.mojang.math.Axis en lugar de net.minecraft.util.Axis
+        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-camera.yRot))
+        poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(camera.xRot))
 
         poseStack.scale(RADIUS, RADIUS, RADIUS)
 
@@ -99,9 +98,10 @@ object SphereRenderer {
 
         val shader = RenderSystem.setShader { GameRenderer.getPositionTexColorNormalShader() }
 
+        // FIX: Usar los métodos correctos del shader
         val modelView = poseStack.last().pose()
-        shader.modelViewMatrix.set(modelView)
-        shader.projectionMatrix.set(projectionMatrix)
+        shader.safeGetUniform("ModelViewMat")?.set(modelView)
+        shader.safeGetUniform("ProjMat")?.set(projectionMatrix)
 
         GL30.glBindVertexArray(vaoId)
         GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0)

@@ -1,5 +1,6 @@
 package com.luis.verity.entity
 
+import com.luis.verity.registry.ModEntities
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
@@ -18,7 +19,8 @@ class VeritySphereEntity(
     }
 
     init {
-        noGravity = true
+        // FIX: En Forge 1.20.1, noGravity es un método, no una propiedad
+        isNoGravity = true
         noPhysics = true
     }
 

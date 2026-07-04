@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.Axis
 
 class VeritySphereEntityRenderer(
     context: EntityRendererProvider.Context
@@ -38,8 +37,9 @@ class VeritySphereEntityRenderer(
 
         val camera = Minecraft.getInstance().gameRenderer.mainCamera
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(-camera.yRot))
-        poseStack.mulPose(Axis.XP.rotationDegrees(camera.xRot))
+        // FIX: Usar com.mojang.math.Axis
+        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-camera.yRot))
+        poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(camera.xRot))
 
         val scale = 15.0f
         poseStack.scale(scale, scale, scale)

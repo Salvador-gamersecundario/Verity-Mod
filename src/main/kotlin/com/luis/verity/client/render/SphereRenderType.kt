@@ -14,12 +14,17 @@ object SphereRenderType {
 
     private fun createVeritySphereLayer(texture: ResourceLocation): RenderType {
         val compositeState = RenderType.CompositeState.builder()
-            .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
+            .setShaderState(RenderStateShard.ShaderStateShard(RenderType::entityTranslucentShader))
             .setTextureState(RenderStateShard.TextureStateShard(texture, false, false))
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .setCullState(RenderStateShard.NO_CULL)
-            .setLightmapState(RenderStateShard.LIGHTMAP)
-            .setOverlayState(RenderStateShard.OVERLAY)
+            .setTransparencyState(RenderStateShard.TransparencyStateShard("translucent", {
+                net.minecraft.client.renderer.RenderSystem.enableBlend()
+                net.minecraft.client.renderer.RenderSystem.defaultBlendFunc()
+            }, {
+                net.minecraft.client.renderer.RenderSystem.disableBlend()
+            }))
+            .setCullState(RenderStateShard.CullStateShard(false))
+            .setLightmapState(RenderStateShard.LightmapStateShard(true))
+            .setOverlayState(RenderStateShard.OverlayStateShard(true))
             .createCompositeState(true)
 
         return RenderType.create(
@@ -39,11 +44,16 @@ object SphereRenderType {
 
     private fun createEmissiveLayer(texture: ResourceLocation): RenderType {
         val compositeState = RenderType.CompositeState.builder()
-            .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_CUTOUT_SHADER)
+            .setShaderState(RenderStateShard.ShaderStateShard(RenderType::entityCutoutShader))
             .setTextureState(RenderStateShard.TextureStateShard(texture, false, false))
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .setCullState(RenderStateShard.NO_CULL)
-            .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+            .setTransparencyState(RenderStateShard.TransparencyStateShard("translucent", {
+                net.minecraft.client.renderer.RenderSystem.enableBlend()
+                net.minecraft.client.renderer.RenderSystem.defaultBlendFunc()
+            }, {
+                net.minecraft.client.renderer.RenderSystem.disableBlend()
+            }))
+            .setCullState(RenderStateShard.CullStateShard(false))
+            .setWriteMaskState(RenderStateShard.WriteMaskStateShard(true, false))
             .createCompositeState(true)
 
         return RenderType.create(
