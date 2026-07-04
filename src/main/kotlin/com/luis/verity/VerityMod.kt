@@ -1,5 +1,6 @@
 package com.luis.verity
 
+import thedarkcolour.kotlinforforge.forge.MOD_CONTEXT
 import com.luis.verity.registry.ModEntities
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.IEventBus
@@ -17,7 +18,7 @@ class VerityMod {
     }
 
     init {
-        val modEventBus: IEventBus = FMLJavaModLoadingContext.get().modEventBus
+        val bus = MOD_CONTEXT.getModEventBus()
 
         // Registrar entidades
         ModEntities.ENTITY_TYPES.register(modEventBus)
