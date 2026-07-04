@@ -5,7 +5,7 @@ plugins {
 }
 
 // Leer propiedades de gradle.properties
-val modId = project.findProperty("mod_id")?.toString() ?: "verity"
+val modId = project.findProperty("mod_id")?.toString() ?: "verity-mod"
 val modVersion = project.findProperty("mod_version")?.toString() ?: "1.0.0"
 val modGroupId = project.findProperty("mod_group_id")?.toString() ?: "com.luis"
 val mcVersion = project.findProperty("minecraft_version")?.toString() ?: "1.20.1"
